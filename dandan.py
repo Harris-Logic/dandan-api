@@ -6,12 +6,17 @@ import requests
 from bs4 import BeautifulSoup
 import arrow
 
+proxy_uri = "http://127.0.0.1:7890"
+
 app = FastAPI()
 dmhy_base_uri = "https://share.dmhy.org"
 dmhy_type_and_subgroup_uri = f"{dmhy_base_uri}/topics/advanced-search?team_id=0&sort_id=0&orderby="
 dmhy_list_uri = f"{dmhy_base_uri}/topics/list/page/{{3}}?keyword={{0}}&sort_id={{1}}&team_id={{2}}&order=date-desc"
 unknown_subgroup_id = -1
 unknown_subgroup_name = "未知字幕组"
+
+def get_proxies():
+    return {'http': proxy_uri, 'https': proxy_uri}
 
 def parse_list_tr(tr):
     td0 = tr.select("td")[0]
@@ -81,6 +86,9 @@ if __name__ == "__main__":
             continue
         if arg.startswith("port="):
             run_port = int(arg.replace("port=", ""))
+            continue
+        if arg.startswith("proxy="):
+            proxy_uri = arg.replace("proxy=", "")
             continue
 
     uvicorn.run(app, host=run_host, port=run_port, debug=False)
